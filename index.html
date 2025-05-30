@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<div style="text-align: center; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div style="background: #1a1a1<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -343,6 +344,7 @@
         
         <div class="tabs">
             <button class="tab active" onclick="showTab('core', this)">🏗️ Core System</button>
+            <button class="tab" onclick="showTab('users', this)">👥 User's Schema</button>
             <button class="tab" onclick="showTab('academic', this)">📚 Academic</button>
             <button class="tab" onclick="showTab('financial', this)">💰 Financial</button>
             <button class="tab" onclick="showTab('communication', this)">💬 Communication</button>
@@ -353,29 +355,46 @@
         <!-- Core System Tab -->
         <div class="tab-content active" id="core">
             <div class="module-description">
-                <h3>Core System Module</h3>
-                <p>User management, authentication, and basic profiles for learners and trainers.</p>
+                <h3>Complete Database Schema - ERD Overview</h3>
+                <p>Complete Entity Relationship Diagram showing all tables and their relationships in the Akako.net educational platform.</p>
+            </div>
+            
+           
+            
+            <div style="text-align: center; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <img src="https://cdn.discordapp.com/attachments/1075720432688320563/1378057672108281940/diagram-export-5-30-2025-9_45_25-PM.png?ex=683b37b8&is=6839e638&hm=e3df864bc26f5571410d105413f58de43e0a98f7ac2b915165088d7808f274ed&" 
+                     alt="Akako.net Database ERD" 
+                     style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+                <p style="margin-top: 15px; color: #666; font-style: italic;">Complete Entity Relationship Diagram - Akako.net Educational Platform</p>
+                
+            </div>
+        </div>
+        
+        <!-- User's Schema Tab -->
+        <div class="tab-content" id="users">
+            <div class="module-description">
+                <h3>User's Schema Module</h3>
+                <p>User management, authentication, and detailed profiles for learners and trainers.</p>
             </div>
             
             <div class="stats">
                 <div class="stat-item">
                     <div class="stat-number">3</div>
-                    <div class="stat-label">Core Tables</div>
+                    <div class="stat-label">User Tables</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number">50+</div>
-                    <div class="stat-label">Total Fields</div>
+                    <div class="stat-label">User Fields</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">5</div>
-                    <div class="stat-label">Relationships</div>
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Core Relationships</div>
                 </div>
             </div>
             
             <div class="controls">
                 <button class="btn" onclick="exportSchema()">📁 Export Schema</button>
                 <button class="btn" onclick="printSchema()">🖨️ Print Schema</button>
-                <input type="text" class="search-input" placeholder="Search tables and fields..." onInput="searchTables(this.value)">
             </div>
             
             <div class="legend">
