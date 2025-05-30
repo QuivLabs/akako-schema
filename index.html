@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akako.net Complete Database Schema</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #34495e;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            white-space: nowrap;
+            min-width: 150px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .tab:hover {
+            background: #2c3e50;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+            background: #f8f9fa;
+            min-height: 600px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .search-input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+            font-size: 14px;
+        }
+        
+        .schema-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            position: relative;
+        }
+        
+        .entity {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .entity:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .entity-header {
+            padding: 20px;
+            font-weight: bold;
+            font-size: 1.3em;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .entity-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--header-color-1), var(--header-color-2));
+            z-index: 1;
+        }
+        
+        .entity-header span {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .users { --header-color-1: #e74c3c; --header-color-2: #c0392b; }
+        .learners { --header-color-1: #2ecc71; --header-color-2: #27ae60; }
+        .trainers { --header-color-1: #f39c12; --header-color-2: #e67e22; }
+        .courses { --header-color-1: #3498db; --header-color-2: #2980b9; }
+        .sessions { --header-color-1: #9b59b6; --header-color-2: #8e44ad; }
+        .registration { --header-color-1: #1abc9c; --header-color-2: #16a085; }
+        .attendance { --header-color-1: #34495e; --header-color-2: #2c3e50; }
+        .grades { --header-color-1: #e67e22; --header-color-2: #d35400; }
+        .payments { --header-color-1: #27ae60; --header-color-2: #229954; }
+        .invoices { --header-color-1: #8e44ad; --header-color-2: #7d3c98; }
+        .refunds { --header-color-1: #c0392b; --header-color-2: #a93226; }
+        .communication { --header-color-1: #17a2b8; --header-color-2: #138496; }
+        .notifications { --header-color-1: #fd7e14; --header-color-2: #e55100; }
+        .scheduling { --header-color-1: #6f42c1; --header-color-2: #5a32a3; }
+        .calendar_events { --header-color-1: #20c997; --header-color-2: #17a2b8; }
+        .analytics { --header-color-1: #28a745; --header-color-2: #1e7e34; }
+        .feedback { --header-color-1: #dc3545; --header-color-2: #c82333; }
+        .analytics_reports { --header-color-1: #007bff; --header-color-2: #0056b3; }
+        .activity_logs { --header-color-1: #6c757d; --header-color-2: #495057; }
+        .resources { --header-color-1: #e83e8c; --header-color-2: #d91a72; }
+        .resource_categories { --header-color-1: #fd7e14; --header-color-2: #e55100; }
+        .resource_access { --header-color-1: #6610f2; --header-color-2: #520dc2; }
+        
+        .entity-body {
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .field {
+            padding: 12px 20px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+        
+        .field:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .field:last-child {
+            border-bottom: none;
+        }
+        
+        .field-name {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .field-type {
+            background: #ecf0f1;
+            color: #7f8c8d;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .primary-key {
+            background: #e74c3c !important;
+            color: white !important;
+        }
+        
+        .foreign-key {
+            background: #3498db !important;
+            color: white !important;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+        }
+        
+        .module-description {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .module-description h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @media (max-width: 768px) {
+            .schema-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .legend {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                min-width: unset;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Akako.net Complete Database Schema</h1>
+            <p>Educational Platform - Complete System Architecture</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('core', this)">🏗️ Core System</button>
+            <button class="tab" onclick="showTab('academic', this)">📚 Academic</button>
+            <button class="tab" onclick="showTab('financial', this)">💰 Financial</button>
+            <button class="tab" onclick="showTab('communication', this)">💬 Communication</button>
+            <button class="tab" onclick="showTab('analytics', this)">📊 Analytics</button>
+            <button class="tab" onclick="showTab('resources', this)">📖 Resources</button>
+        </div>
+        
+        <!-- Core System Tab -->
+        <div class="tab-content active" id="core">
+            <div class="module-description">
+                <h3>Core System Module</h3>
+                <p>User management, authentication, and basic profiles for learners and trainers.</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Core Tables</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Total Fields</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Relationships</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" onclick="exportSchema()">📁 Export Schema</button>
+                <button class="btn" onclick="printSchema()">🖨️ Print Schema</button>
+                <input type="text" class="search-input" placeholder="Search tables and fields..." onInput="searchTables(this.value)">
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color primary-key"></div>
+                    <span>Primary Key</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color foreign-key"></div>
+                    <span>Foreign Key</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #95a5a6;"></div>
+                    <span>Regular Field</span>
+                </div>
+            </div>
+            
+            <div class="schema-grid">
+                <!-- Users Entity -->
+                <div class="entity users">
+                    <div class="entity-header">
+                        <span>👤 USERS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">username</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">email</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">password_hash</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">individual_id</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_group</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_lifetime</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">start_date</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">expiry_date</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">last_login</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Learner Profiles Entity -->
+                <div class="entity learners">
+                    <div class="entity-header">
+                        <span>🎓 LEARNER_PROFILES</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">learner_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">title</span>
+                            <span class="field-type">VARCHAR(10)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">first_name</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">middle_name</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">last_name</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">date_of_birth</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">gender</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">phone_number</span>
+                            <span class="field-type">VARCHAR(20)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">address</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">school_institution</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">grade_level</span>
+                            <span class="field-type">VARCHAR(20)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">academic_program</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">gpa</span>
+                            <span class="field-type">DECIMAL(3,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">profile_picture</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">communication_preference</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">privacy_settings</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">personal_statement</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trainer Profiles Entity -->
+                <div class="entity trainers">
+                    <div class="entity-header">
+                        <span>🧑‍🏫 TRAINER_PROFILES</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">trainer_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">title</span>
+                            <span class="field-type">VARCHAR(10)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">first_name</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">middle_name</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">last_name</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">educational_background</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">certifications</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">teaching_experience</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">specialization_areas</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">teaching_methods</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">trainer_rate</span>
+                            <span class="field-type">DECIMAL(10,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">unit_of_rate</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">availability_schedule</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">profile_picture</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">bio</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">rating</span>
+                            <span class="field-type">DECIMAL(3,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Academic Tab -->
+        <div class="tab-content" id="academic">
+            <div class="module-description">
+                <h3>Academic Management Module</h3>
+                <p>Courses, sessions, enrollment, attendance tracking, and grading system.</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Academic Tables</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">80+</div>
+                    <div class="stat-label">Total Fields</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Relationships</div>
+                </div>
+            </div>
+            
+            <div class="schema-grid">
+                <!-- Courses Entity -->
+                <div class="entity courses">
+                    <div class="entity-header">
+                        <span>📚 COURSES</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">course_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_code</span>
+                            <span class="field-type">VARCHAR(20)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_name</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_description</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_syllabus</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">learning_objectives</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">prerequisites</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_rate</span>
+                            <span class="field-type">DECIMAL(10,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">duration</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">unit_of_duration</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">instructional_methodology</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">assessment_methods</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">certification_type</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">category</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">grade_level</span>
+                            <span class="field-type">VARCHAR(20)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sessions Entity -->
+                <div class="entity sessions">
+                    <div class="entity-header">
+                        <span>📅 SESSIONS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">session_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">lead_trainer_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_code</span>
+                            <span class="field-type">VARCHAR(20)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_name</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">mode_of_training</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">room_address</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">room_number</span>
+                            <span class="field-type">VARCHAR(20)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">trainer_rate</span>
+                            <span class="field-type">DECIMAL(10,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">assistant_trainers</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_rate</span>
+                            <span class="field-type">DECIMAL(10,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">unit_of_rate</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">discount</span>
+                            <span class="field-type">DECIMAL(10,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">duration</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">unit_of_duration</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">training_frequency</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">start_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">finish_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">start_time</span>
+                            <span class="field-type">TIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">finish_time</span>
+                            <span class="field-type">TIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">max_participants</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">current_participants</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enrollments Entity -->
+                <div class="entity registration">
+                    <div class="entity-header">
+                        <span>📝 ENROLLMENTS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">enrollment_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">learner_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">enrollment_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">payment_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">enrollment_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_trained</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">certificate_issued</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">certificate_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">completion_percentage</span>
+                            <span class="field-type">DECIMAL(5,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">final_grade</span>
+                            <span class="field-type">VARCHAR(5)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">remarks</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Attendance Entity -->
+                <div class="entity attendance">
+                    <div class="entity-header">
+                        <span>📋 ATTENDANCE</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">attendance_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">enrollment_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">attendance_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">check_in_time</span>
+                            <span class="field-type">TIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">check_out_time</span>
+                            <span class="field-type">TIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">notes</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grades Entity -->
+                <div class="entity grades">
+                    <div class="entity-header">
+                        <span>📊 GRADES</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">grade_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">enrollment_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">assessment_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">assessment_name</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">score</span>
+                            <span class="field-type">DECIMAL(6,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">max_score</span>
+                            <span class="field-type">DECIMAL(6,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">percentage</span>
+                            <span class="field-type">DECIMAL(5,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">grade_letter</span>
+                            <span class="field-type">VARCHAR(5)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">assessment_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">graded_by</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">comments</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Financial Tab -->
+        <div class="tab-content" id="financial">
+            <div class="module-description">
+                <h3>Financial Management Module</h3>
+                <p>Payment processing, billing, invoicing, and financial tracking with support for local payment methods.</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Financial Tables</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">40+</div>
+                    <div class="stat-label">Payment Fields</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Multiple</div>
+                    <div class="stat-label">Payment Methods</div>
+                </div>
+            </div>
+            
+            <div class="schema-grid">
+                <!-- Payments Entity -->
+                <div class="entity payments">
+                    <div class="entity-header">
+                        <span>💳 PAYMENTS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">payment_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">enrollment_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">payment_method</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">payment_gateway</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">transaction_id</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">amount</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">currency</span>
+                            <span class="field-type">VARCHAR(3)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">tax_amount</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">discount_amount</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">total_amount</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">payment_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">payment_date</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">due_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_recurring</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">recurring_interval</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Invoices Entity -->
+                <div class="entity invoices">
+                    <div class="entity-header">
+                        <span>🧾 INVOICES</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">invoice_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">enrollment_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">invoice_number</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">invoice_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">due_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">subtotal</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">tax_rate</span>
+                            <span class="field-type">DECIMAL(5,4)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">tax_amount</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">discount_amount</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">total_amount</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">invoice_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">billing_address</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">notes</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Refunds Entity -->
+                <div class="entity refunds">
+                    <div class="entity-header">
+                        <span>💸 REFUNDS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">refund_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">payment_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">refund_amount</span>
+                            <span class="field-type">DECIMAL(12,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">refund_reason</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">refund_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">requested_by</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">processed_by</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">request_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">processed_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Communication Tab -->
+        <div class="tab-content" id="communication">
+            <div class="module-description">
+                <h3>Communication & Scheduling Module</h3>
+                <p>Messaging system, notifications, booking management, and calendar integration.</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Communication Tables</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Communication Fields</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Real-time</div>
+                    <div class="stat-label">Messaging</div>
+                </div>
+            </div>
+            
+            <div class="schema-grid">
+                <!-- Messages Entity -->
+                <div class="entity communication">
+                    <div class="entity-header">
+                        <span>💬 MESSAGES</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">message_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">sender_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">receiver_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">conversation_id</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">message_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">subject</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">message_content</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">attachments</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_read</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">read_at</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">priority</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notifications Entity -->
+                <div class="entity notifications">
+                    <div class="entity-header">
+                        <span>🔔 NOTIFICATIONS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">notification_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">notification_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">title</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">content</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">delivery_method</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_read</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">scheduled_at</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">sent_at</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">read_at</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">related_entity_type</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">related_entity_id</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bookings Entity -->
+                <div class="entity scheduling">
+                    <div class="entity-header">
+                        <span>📅 BOOKINGS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">booking_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">trainer_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">service_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">booking_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">booking_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">start_time</span>
+                            <span class="field-type">TIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">end_time</span>
+                            <span class="field-type">TIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">duration_minutes</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">booking_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">meeting_url</span>
+                            <span class="field-type">VARCHAR(500)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">location</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">notes</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">reminder_sent</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calendar Events Entity -->
+                <div class="entity calendar_events">
+                    <div class="entity-header">
+                        <span>🗓️ CALENDAR_EVENTS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">event_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">booking_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">event_title</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">event_description</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">event_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">start_datetime</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">end_datetime</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_recurring</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">recurrence_pattern</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">reminder_settings</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div class="tab-content" id="analytics">
+            <div class="module-description">
+                <h3>Analytics & Progress Tracking Module</h3>
+                <p>Progress tracking, KPI monitoring, feedback system, and comprehensive analytics.</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Analytics Tables</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">60+</div>
+                    <div class="stat-label">Tracking Fields</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Real-time</div>
+                    <div class="stat-label">Analytics</div>
+                </div>
+            </div>
+            
+            <div class="schema-grid">
+                <!-- Progress Tracking Entity -->
+                <div class="entity analytics">
+                    <div class="entity-header">
+                        <span>📈 PROGRESS_TRACKING</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">progress_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">enrollment_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">learner_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">completion_percentage</span>
+                            <span class="field-type">DECIMAL(5,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">time_spent_minutes</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">modules_completed</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">total_modules</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">assessments_completed</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">average_score</span>
+                            <span class="field-type">DECIMAL(5,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">goals_set</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">goals_achieved</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">last_activity_date</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">performance_metrics</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feedback Reviews Entity -->
+                <div class="entity feedback">
+                    <div class="entity-header">
+                        <span>📝 FEEDBACK_REVIEWS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">feedback_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">reviewer_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">reviewee_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">feedback_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">rating</span>
+                            <span class="field-type">DECIMAL(3,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">review_title</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">review_content</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_verified</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_anonymous</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">helpful_votes</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">response</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">responded_by</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">responded_at</span>
+                            <span class="field-type">DATETIME</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">moderation_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Reports Entity -->
+                <div class="entity analytics_reports">
+                    <div class="entity-header">
+                        <span>📊 ANALYTICS_REPORTS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">report_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">report_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">report_name</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">generated_by</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">date_range_start</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">date_range_end</span>
+                            <span class="field-type">DATE</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">filters_applied</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">kpi_metrics</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">visualizations</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">insights</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">report_data</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_scheduled</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">schedule_frequency</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Activity Logs Entity -->
+                <div class="entity activity_logs">
+                    <div class="entity-header">
+                        <span>📋 ACTIVITY_LOGS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">log_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_id</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">activity_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">entity_type</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">entity_id</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">action_performed</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">details</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">ip_address</span>
+                            <span class="field-type">VARCHAR(45)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_agent</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">timestamp</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resources Tab -->
+        <div class="tab-content" id="resources">
+            <div class="module-description">
+                <h3>Learning Resources Module</h3>
+                <p>Educational content management, resource categorization, and access tracking.</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Resource Tables</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Content Fields</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Multi-grade</div>
+                    <div class="stat-label">Content Support</div>
+                </div>
+            </div>
+            
+            <div class="schema-grid">
+                <!-- Learning Resources Entity -->
+                <div class="entity resources">
+                    <div class="entity-header">
+                        <span>📖 LEARNING_RESOURCES</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">resource_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">course_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">session_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_by</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">resource_title</span>
+                            <span class="field-type">VARCHAR(200)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">resource_description</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">resource_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">content_format</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">file_path</span>
+                            <span class="field-type">VARCHAR(500)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">file_size</span>
+                            <span class="field-type">BIGINT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">content_url</span>
+                            <span class="field-type">VARCHAR(500)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">duration_minutes</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">difficulty_level</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">tags</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">accessibility_features</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">interactive_elements</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_downloadable</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">access_level</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">version</span>
+                            <span class="field-type">VARCHAR(20)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">updated_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resource Categories Entity -->
+                <div class="entity resource_categories">
+                    <div class="entity-header">
+                        <span>📂 RESOURCE_CATEGORIES</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">category_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">parent_category_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">category_name</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">category_description</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">category_level</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">grade_range</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">subject_area</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">sort_order</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">is_active</span>
+                            <span class="field-type">BOOLEAN</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resource Access Entity -->
+                <div class="entity resource_access">
+                    <div class="entity-header">
+                        <span>👁️ RESOURCE_ACCESS</span>
+                    </div>
+                    <div class="entity-body">
+                        <div class="field">
+                            <span class="field-name">access_id</span>
+                            <span class="field-type primary-key">PK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">resource_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">user_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">enrollment_id</span>
+                            <span class="field-type foreign-key">FK</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">access_type</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">time_spent_minutes</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">progress_percentage</span>
+                            <span class="field-type">DECIMAL(5,2)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">completion_status</span>
+                            <span class="field-type">ENUM</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">bookmarks</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">notes</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">last_position</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">download_count</span>
+                            <span class="field-type">INT</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">first_accessed_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">last_accessed_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="field">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName, element) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            element.classList.add('active');
+        }
+        
+        function searchTables(searchTerm) {
+            const entities = document.querySelectorAll('.entity');
+            const lowerSearchTerm = searchTerm.toLowerCase();
+            
+            entities.forEach(entity => {
+                const entityText = entity.textContent.toLowerCase();
+                const shouldShow = entityText.includes(lowerSearchTerm);
+                
+                if (shouldShow) {
+                    entity.style.display = 'block';
+                    entity.classList.remove('hidden');
+                } else {
+                    entity.style.display = 'none';
+                    entity.classList.add('hidden');
+                }
+            });
+        }
+        
+        function exportSchema() {
+            let schemaText = "AKAKO.NET COMPLETE DATABASE SCHEMA\n";
+            schemaText += "=" + "=".repeat(50) + "\n\n";
+            
+            const tabs = ['core', 'academic', 'financial', 'communication', 'analytics', 'resources'];
+            
+            tabs.forEach(tabName => {
+                const tabContent = document.getElementById(tabName);
+                const entities = tabContent.querySelectorAll('.entity');
+                
+                schemaText += `\n${tabName.toUpperCase()} MODULE\n`;
+                schemaText += "-".repeat(30) + "\n";
+                
+                entities.forEach(entity => {
+                    const header = entity.querySelector('.entity-header span').textContent;
+                    schemaText += `\n${header}\n`;
+                    schemaText += "-".repeat(header.length) + "\n";
+                    
+                    const fields = entity.querySelectorAll('.field');
+                    fields.forEach(field => {
+                        const fieldName = field.querySelector('.field-name').textContent;
+                        const fieldType = field.querySelector('.field-type').textContent;
+                        schemaText += `${fieldName}: ${fieldType}\n`;
+                    });
+                });
+            });
+            
+            // Add relationships section
+            schemaText += "\n\nKEY RELATIONSHIPS\n";
+            schemaText += "-".repeat(30) + "\n";
+            schemaText += "USERS → LEARNER_PROFILES (1:1)\n";
+            schemaText += "USERS → TRAINER_PROFILES (1:1)\n";
+            schemaText += "COURSES → SESSIONS (1:N)\n";
+            schemaText += "TRAINERS → SESSIONS (1:N)\n";
+            schemaText += "SESSIONS → ENROLLMENTS (1:N)\n";
+            schemaText += "LEARNERS → ENROLLMENTS (1:N)\n";
+            schemaText += "ENROLLMENTS → PAYMENTS (1:N)\n";
+            schemaText += "ENROLLMENTS → ATTENDANCE (1:N)\n";
+            schemaText += "ENROLLMENTS → GRADES (1:N)\n";
+            
+            const blob = new Blob([schemaText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'akako_complete_schema.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function printSchema() {
+            window.print();
+        }
+        
+        // Add interactive hover effects
+        document.querySelectorAll('.entity').forEach(entity => {
+            entity.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            entity.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Initialize with proper responsive behavior
+        window.addEventListener('resize', function() {
+            // Handle responsive adjustments if needed
+        });
+        
+        // Add click to copy field names functionality
+        document.querySelectorAll('.field-name').forEach(fieldName => {
+            fieldName.addEventListener('click', function() {
+                navigator.clipboard.writeText(this.textContent).then(function() {
+                    // Show brief success indication
+                    const original = fieldName.style.backgroundColor;
+                    fieldName.style.backgroundColor = '#e8f5e8';
+                    setTimeout(() => {
+                        fieldName.style.backgroundColor = original;
+                    }, 300);
+                });
+            });
+            
+            fieldName.style.cursor = 'pointer';
+            fieldName.title = 'Click to copy field name';
+        });
+    </script>
+</body>
+</html>
